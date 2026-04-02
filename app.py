@@ -156,17 +156,17 @@ def get_closest_plane():
 
         # --- DELAY LOGIC ---
         def get_delay_status():
-            if not is_valid: return "ontime"
+            if not is_valid: return "Scheduled"
             
             sched_arr = safe_get(time_data, 'scheduled', 'arrival')
             est_arr = safe_get(time_data, 'estimated', 'arrival')
             
-            if not sched_arr or not est_arr: return "ontime"
+            if not sched_arr or not est_arr: return "Scheduled"
             
             # Difference in minutes
             delay_mins = (est_arr - sched_arr) // 60
             
-            if delay_mins > 30: return "delayed-critical" # Red (30+ mins)
+            if delay_mins > 30: return "delayed-major" # Red (30+ mins)
             if delay_mins > 10: return "delayed-minor"    # Yellow (10-30 mins)
             return "ontime"                               # Green
 

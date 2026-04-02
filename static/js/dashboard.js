@@ -60,7 +60,7 @@ async function updateDashboard() {
 
         if (arrivalLabel && data.delay_status) {
             // We only want the first word (e.g., "Delayed" instead of "Delayed 14:30")
-            const cleanStatus = data.delay_status || "Scheduled";
+            const cleanStatus = data.delay_status || "Unknown";
             
             // Set the label text and append the badge
             arrivalLabel.innerHTML = `ARRIVAL <span class="status-badge ${data.delay_status}">${cleanStatus}</span>`;
