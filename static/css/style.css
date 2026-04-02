@@ -140,7 +140,7 @@ hr {
     color: var(--slate-dim);
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    margin-top: 4px;
+    margin-top: 12px;
 }
 
 .track-line {

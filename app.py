@@ -175,7 +175,7 @@ def get_closest_plane():
             "tail": safe_get(details, 'aircraft', 'registration') or current_hex.upper(),
             "alt": closest_ac.get('alt_baro', 0),
             "speed": closest_ac.get('gs', 0),
-            "operator": safe_get(details, 'airline', 'name') or "Military/Private",
+            "operator": safe_get(details, 'airline', 'name') or "Private/Military",
             "operator_icao": safe_get(details, 'airline', 'code', 'icao') or "DEFAULT",
             "origin_icao": get_airport_code('origin'),
             "origin_city": safe_get(details, 'airport', 'origin', 'name') or "Unknown",

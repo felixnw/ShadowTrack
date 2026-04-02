@@ -3,3 +3,4 @@ flask-cors
 requests
 FlightRadar24-API
 beatufil-soup4
+gunicorn
