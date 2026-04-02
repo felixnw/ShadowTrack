@@ -122,8 +122,9 @@ hr {
 .route-section {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1rem;
+    align-items: stretch;
+    width: 100%;
+    gap: 0;
 }
 
 .icao {
@@ -142,20 +143,53 @@ hr {
 }
 
 .track-line {
+    /* FIXED: This prevents the line from stretching horizontally */
+    align-self: center; 
+    
     width: 2px;
-    height: 60px;
-    background: repeating-linear-gradient(180deg, var(--slate-dim), var(--slate-dim) 6px, transparent 6px, transparent 12px);
+    height: 80px; /* Increased height to bridge the gap */
+    background: repeating-linear-gradient(
+        180deg, 
+        var(--slate-dim), 
+        var(--slate-dim) 6px, 
+        transparent 6px, 
+        transparent 12px
+    );
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: 10px 0; /* Space between the ICAO codes and the line */
 }
 
 .plane-icon {
     font-size: 32px;
     color: var(--accent);
-    background: var(--bg);
-    padding: 8px;
+    background: var(--bg); /* Masks the line behind the plane */
+    padding: 4px;
+    /* Keeps the plane vertical and centered on the line */
+    position: absolute; 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.airport-block {
+    width: 100%;
+    display: flex;
+    flex-direction: column;   /* Default for the top block */
+}
+
+/* Force the origin text to the left */
+.airport-block:first-child {
+    align-items: flex-start;
+    text-align: left;
+}
+
+/* Force the destination text to the right */
+.right-airport-block {
+    align-items: flex-end;
+    text-align: right;
 }
 
 /* --- TIMES --- */
@@ -213,6 +247,40 @@ hr {
     color: var(--slate-dim);
     margin-top: 4px;
     letter-spacing: 1px;
+}
+
+/* Status Colors */
+.ontime {
+    color: #00ff88 !important; /* Vivid Green */
+}
+
+.delayed-minor {
+    color: #ffcc00 !important; /* Warning Yellow */
+}
+
+.delayed-critical {
+    color: #ff4444 !important; /* Alert Red */
+}
+
+.status-badge {
+    font-size: 0.65rem; /* Keeps it smaller than the "ARRIVAL" text */
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    border: 1px solid currentColor;
+    background: rgba(255, 255, 255, 0.05);
+    letter-spacing: 0.5px;
+    line-height: 1; /* Keeps the badge from getting too tall */
+}
+
+.label, .arrival-header {
+    gap: 8px;
+    font-size: 0.8rem;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 4px;
 }
 
 /* --- RESPONSIVE / TABLET --- */
