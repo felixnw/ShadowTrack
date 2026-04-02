@@ -22,7 +22,7 @@ fr_api = FlightRadar24API()
 # The URL of your local Raspberry Pi ADS-B receiver
 ADSB_URL = config.ADSB_URL
 
-# Minneapolis Coordinates (Home Base)
+# Coordinates
 HOME_LAT = config.HOME_LAT
 HOME_LON = config.HOME_LON
 
@@ -65,6 +65,7 @@ def get_closest_plane():
         aircraft_list = data.get('aircraft', [])
 
         if not aircraft_list:
+            # print("No aircraft data received from ADS-B receiver.")
             return jsonify({"error": "No aircraft in range"}), 404
 
         # 2. Identify the closest plane with an active signal
@@ -75,6 +76,7 @@ def get_closest_plane():
                 valid_planes.append(ac)
 
         if not valid_planes:
+            # print("No valid planes found (missing data or stale signal).")
             return jsonify({"error": "Scanning skies..."}), 404
 
         closest_ac = min(valid_planes, key=lambda x: x['dist'])
@@ -152,6 +154,22 @@ def get_closest_plane():
         dep_ts = safe_get(time_data, 'real', 'departure') or safe_get(time_data, 'scheduled', 'departure')
         arr_ts = safe_get(time_data, 'estimated', 'arrival') or safe_get(time_data, 'scheduled', 'arrival')
 
+        # --- DELAY LOGIC ---
+        def get_delay_status():
+            if not is_valid: return "ontime"
+            
+            sched_arr = safe_get(time_data, 'scheduled', 'arrival')
+            est_arr = safe_get(time_data, 'estimated', 'arrival')
+            
+            if not sched_arr or not est_arr: return "ontime"
+            
+            # Difference in minutes
+            delay_mins = (est_arr - sched_arr) // 60
+            
+            if delay_mins > 30: return "delayed-critical" # Red (30+ mins)
+            if delay_mins > 10: return "delayed-minor"    # Yellow (10-30 mins)
+            return "ontime"                               # Green
+
         payload = {
             "flight": callsign,
             "tail": safe_get(details, 'aircraft', 'registration') or current_hex.upper(),
@@ -165,7 +183,9 @@ def get_closest_plane():
             "dest_city": safe_get(details, 'airport', 'destination', 'name') or "Unknown",
             "aircraft_model": safe_get(details, 'aircraft', 'model', 'text') or "Unknown Aircraft",
             "dep_time": get_local_time(dep_ts, 'origin'),
-            "arr_time": get_local_time(arr_ts, 'destination')
+            "arr_time": get_local_time(arr_ts, 'destination'),
+            "delay_status": get_delay_status(),
+            "status_text": safe_get(details, 'status', 'text') or "Scheduled"
         }
 
         return jsonify(payload)
