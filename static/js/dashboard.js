@@ -25,6 +25,8 @@ async function updateDashboard() {
 
         // 1. Remove loading state
         container.classList.remove('loading');
+        
+        // Set the label
         document.getElementById('status-label').innerText = "Closest Flight";
 
         // 2. Update Identity
@@ -33,7 +35,7 @@ async function updateDashboard() {
         
         // 3. Update Logo (using Airline ICAO)
         const logoImg = document.getElementById('airline-logo');
-        if (data.operator_icao) {
+        if (data.operator_icao && data.operator_icao !== "DEFAULT") {
             logoImg.src = `${LOGO_PATH}${data.operator_icao}.png`;
         } else {
             logoImg.src = `${LOGO_PATH}${DEFAULT_LOGO}`;
@@ -45,13 +47,31 @@ async function updateDashboard() {
         document.getElementById('dest-icao').innerText = data.dest_icao || '---';
         document.getElementById('dest-city').innerText = data.dest_city || 'Unknown';
 
-        // 5. Update Times (Assuming data.dep_time and data.arr_time exist)
-        document.getElementById('dep-time').innerHTML = `${data.dep_time || '--:--'} <small>Local</small>`;
-        document.getElementById('arr-time').innerHTML = `${data.arr_time || '--:--'} <small>Local</small>`;
+    // 5. Update Times & Delay Status
+        const arrTimeEl = document.getElementById('arr-time');
+        const depTimeEl = document.getElementById('dep-time');
 
-        // 6. Update Specs
+        // Update Departure (Standard)
+        depTimeEl.innerHTML = `${data.dep_time || '--:--'} <small>Local</small>`;
+
+        // Handle the Arrival Label and Badge
+        // This assumes your HTML looks like: <div class="label">ARRIVAL</div><div id="arr-time">...</div>
+        const arrivalLabel = arrTimeEl.previousElementSibling; 
+
+        if (arrivalLabel && data.delay_status) {
+            // We only want the first word (e.g., "Delayed" instead of "Delayed 14:30")
+            const cleanStatus = data.delay_status || "Scheduled";
+            
+            // Set the label text and append the badge
+            arrivalLabel.innerHTML = `ARRIVAL <span class="status-badge ${data.delay_status}">${cleanStatus}</span>`;
+
+            arrTimeEl.innerHTML = `${data.arr_time || '--:--'} <small>Local</small>`;
+        } else {
+            arrTimeEl.innerHTML = `${data.arr_time || '--:--'} <small>Local</small>`;
+        }
+        // 7. Update Specs
         document.getElementById('aircraft-type').innerHTML = `
-            ${data.aircraft_model || 'Unknown'}
+            ${data.aircraft_model || 'Unknown Aircraft'}
             <span class="tail-sub">${data.tail ? data.tail.toUpperCase() : '-------'}</span>
         `;
         
