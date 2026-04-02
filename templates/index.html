@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <title>ShadowTrack</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;800&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/nosleep.js@0.12.0/dist/NoSleep.min.js"></script>
+</head>
+<body>
+
+    <div id="app-container" class="container loading">
+        <header class="header">
+            <div class="identity-group">
+                <div class="label" id="status-label">Scanning Skies...</div>
+                <h1 class="flight-number" id="flight-id">---</h1>
+                <div class="operator-name" id="operator">Waiting for Signal</div>
+            </div>
+            <div class="logo-box">
+                <img id="airline-logo" 
+                    src="{{ url_for('static', filename='flightaware_logos/default.png') }}" 
+                    alt="Airline Logo" 
+                    style="max-width: 80%; max-height: 80%; object-fit: contain;"
+                    onerror="this.src='{{ url_for('static', filename='flightaware_logos/default.png') }}';">
+            </div>
+        </header>
+
+        <hr>
+
+        <section class="route-section">
+            <div class="airport-block">
+                <span class="icao" id="origin-icao">---</span>
+                <div class="city-name" id="origin-city">Origin</div>
+            </div>
+            
+            <div class="track-line">
+                <span class="plane-icon">✈</span>
+            </div>
+
+            <div class="airport-block">
+                <span class="icao" id="dest-icao">---</span>
+                <div class="city-name" id="dest-city" style="text-align: inherit;">Destination</div>
+            </div>
+        </section>
+
+        <div class="times-row">
+            <div>
+                <div class="label">Departure</div>
+                <span class="time-value" id="dep-time">--:-- <small>Local</small></span>
+            </div>
+            <div>
+                <div class="label">Arrival</div>
+                <span class="time-value" id="arr-time">--:-- <small>Local</small></span>
+            </div>
+        </div>
+
+        <footer class="specs-container">
+            <div class="spec-box">
+                <div class="label">Aircraft</div>
+                <div class="spec-val" id="aircraft-type">
+                    Searching
+                    <span class="tail-sub" id="tail-number">-------</span>
+                </div>
+            </div>
+            <div class="spec-box">
+                <div class="label">Altitude</div>
+                <div class="spec-val" id="alt-val" style="color:var(--accent)">0 <small>FT</small></div>
+            </div>
+            <div class="spec-box">
+                <div class="label">Ground Speed</div>
+                <div class="spec-val" id="speed-val">0 <small>MPH</small></div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

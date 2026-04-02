@@ -1,0 +1,9 @@
+# config.example.py
+# Rename this file to config.py and fill in your details
+
+# The IP address of your Raspberry Pi on your local network
+ADSB_URL = "http://YOUR_PI_IP:8080/data/aircraft.json"
+
+# Your Home Coordinates (used to find the "Closest" plane)
+HOME_LAT = 0.0000
+HOME_LON = 0.0000
