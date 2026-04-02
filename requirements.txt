@@ -1,6 +1,6 @@
 flask
 flask-cors
 requests
-FlightRadar24API
+FlightRadarAPI
 beautifulsoup4
 gunicorn

@@ -6,7 +6,7 @@ let wakeLockEnabled = false;
 const UPDATE_INTERVAL = 5000; // 5 seconds
 const API_URL = '/get-closest-plane'; // Relative to the Flask server
 const LOGO_PATH = '/static/flightaware_logos/';
-const DEFAULT_LOGO = 'default.png';
+const DEFAULT_LOGO = 'DEFAULT.png';
 
 /**
  * Main update function
