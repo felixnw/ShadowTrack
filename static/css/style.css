@@ -96,7 +96,7 @@ body {
 .logo-box {
     width: 180px;
     height: 180px;
-    background: white; /* Keeping white for standard airline logos */
+    background: rgba(21, 23, 29); /* Keeping white for standard airline logos */
     border-radius: 20px;
     display: flex;
     justify-content: center;
