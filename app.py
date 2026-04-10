@@ -30,7 +30,7 @@ HOME_LON = config.HOME_LON
 # Stores the 'Heavy' metadata so we don't spam FlightRadar24
 last_enriched_data = {
     "hex": None,
-    "details": {}
+    "details": None
 }
 
 # --- HELPER FUNCTIONS ---
@@ -86,7 +86,7 @@ def get_closest_plane():
 # 3. SMART ENRICHMENT & CACHING
         details = {}
         
-        if last_enriched_data["hex"] == current_hex and last_enriched_data["details"]:
+        if last_enriched_data["hex"] == current_hex and last_enriched_data["details"] is not None:
             details = last_enriched_data["details"]
             print(f"CACHE HIT: Reusing data for {callsign}")
         else:
@@ -107,13 +107,21 @@ def get_closest_plane():
                 
                 if match:
                     fetched_details = fr_api.get_flight_details(match)
-                    if fetched_details and 'airline' in fetched_details:
-                        details = fetched_details
-                        last_enriched_data["hex"] = current_hex
-                        last_enriched_data["details"] = details
-                        print(f"CACHE SAVED: Found {callsign} via Spatial Match.")
+                    # We found a match! Even if it's a private jet with no airline, 
+                    # we save whatever details we got.
+                    details = fetched_details if fetched_details else {}
+                    print(f"CACHE SAVED: Found {callsign} via Spatial Match.")
                 else:
-                    print(f"FR24: Could not find {callsign} at {p_lat}, {p_lon}")
+                    # We didn't find it on FR24 at all (likely Military/Blocked)
+                    # We save an empty dict so the next refresh triggers a CACHE HIT
+                    details = {}
+                    print(f"CACHE SAVED: {callsign} not found on FR24 (Military/Blocked).")
+
+                # --- THE CRITICAL FIX ---
+                # These lines MUST stay outside the 'if match' to ensure 
+                # that every hex gets cached exactly once.
+                last_enriched_data["hex"] = current_hex
+                last_enriched_data["details"] = details
             except Exception as e:
                 print(f"Spatial Lookup Error: {e}")
 
