@@ -94,8 +94,8 @@ body {
 }
 
 .logo-box {
-    width: 120px;
-    height: 120px;
+    width: 180px;
+    height: 180px;
     background: white; /* Keeping white for standard airline logos */
     border-radius: 20px;
     display: flex;
@@ -164,7 +164,7 @@ hr {
 }
 
 .plane-icon {
-    font-size: 64px;
+    font-size: 6em;
     color: var(--accent);
     background: var(--bg); /* Masks the line behind the plane */
     padding: 4px;
