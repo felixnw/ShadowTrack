@@ -26,6 +26,9 @@ ADSB_URL = config.ADSB_URL
 HOME_LAT = config.HOME_LAT
 HOME_LON = config.HOME_LON
 
+# Minimum altitude (feet) for a plane to be considered
+MIN_ALTITUDE = getattr(config, 'MIN_ALTITUDE', 200)
+
 # --- GLOBAL CACHE ---
 # Stores the 'Heavy' metadata so we don't spam FlightRadar24
 last_enriched_data = {
@@ -72,6 +75,8 @@ def get_closest_plane():
         valid_planes = []
         for ac in aircraft_list:
             if all(k in ac for k in ('lat', 'lon', 'flight')) and ac.get('seen', 99) < 15:
+                if ac.get('alt_baro', 0) < MIN_ALTITUDE:
+                    continue
                 ac['dist'] = calculate_distance(ac['lat'], ac['lon'])
                 valid_planes.append(ac)
 

@@ -7,3 +7,6 @@ ADSB_URL = "http://YOUR_PI_IP:8080/data/aircraft.json"
 # Your Home Coordinates (used to find the "Closest" plane)
 HOME_LAT = 0.0000
 HOME_LON = 0.0000
+
+# Minimum altitude (in feet) for a plane to be considered valid
+MIN_ALTITUDE = 200
