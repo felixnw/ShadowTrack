@@ -38,9 +38,27 @@ last_enriched_data = {
 
 # --- HELPER FUNCTIONS ---
 
+def get_altitude(ac):
+    """Returns numeric altitude in feet, or 0 for 'ground' or missing values."""
+    alt = ac.get('alt_baro', 0)
+    if isinstance(alt, str):
+        return 0
+    return alt or 0
+
 def calculate_distance(lat, lon):
     """Finds the straight-line distance to a plane."""
     return math.sqrt((lat - HOME_LAT)**2 + (lon - HOME_LON)**2)
+
+def filter_valid_planes(aircraft_list, min_altitude):
+    """Filters aircraft to those with required fields, fresh signal, and minimum altitude."""
+    valid = []
+    for ac in aircraft_list:
+        if all(k in ac for k in ('lat', 'lon', 'flight')) and ac.get('seen', 99) < 15:
+            if get_altitude(ac) < min_altitude:
+                continue
+            ac['dist'] = calculate_distance(ac['lat'], ac['lon'])
+            valid.append(ac)
+    return valid
 
 def format_time(ts):
     """Converts API Unix timestamps to HH:MM UTC."""
@@ -72,13 +90,7 @@ def get_closest_plane():
             return jsonify({"error": "No aircraft in range"}), 404
 
         # 2. Identify the closest plane with an active signal
-        valid_planes = []
-        for ac in aircraft_list:
-            if all(k in ac for k in ('lat', 'lon', 'flight')) and ac.get('seen', 99) < 15:
-                if ac.get('alt_baro', 0) < MIN_ALTITUDE:
-                    continue
-                ac['dist'] = calculate_distance(ac['lat'], ac['lon'])
-                valid_planes.append(ac)
+        valid_planes = filter_valid_planes(aircraft_list, MIN_ALTITUDE)
 
         if not valid_planes:
             # print("No valid planes found (missing data or stale signal).")
