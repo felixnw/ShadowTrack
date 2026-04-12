@@ -80,7 +80,7 @@ async function updateDashboard() {
         `;
         
         document.getElementById('speed-val').innerHTML = `
-            ${data.speed || 0} <small>MPH</small>
+            ${data.speed || 0} <small>Kts</small>
         `;
 
     } catch (error) {
