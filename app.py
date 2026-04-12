@@ -120,7 +120,7 @@ def get_closest_plane():
                 flights_in_area = fr_api.get_flights(bounds=bounds)
                 
                 # 3. Find our specific flight in that tiny list
-                match = next((f for f in flights_in_area if f.callsign.strip() == callsign), None)
+                match = next((f for f in flights_in_area if f.icao_24bit.strip().lower() == current_hex), None)
                 
                 if match:
                     fetched_details = fr_api.get_flight_details(match)
