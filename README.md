@@ -11,10 +11,9 @@
 
 ### 💻 Hardware & Stack
 * **Sensor:** Raspberry Pi + RTL-SDR.
-* **Server/Client:** Surface Go running Ubuntu 22.04.
 * **Backend:** Python / Flask / Gunicorn.
 * **Frontend:** HTML5 / CSS3 / JavaScript.
 
 #### Makes use of:
-https://github.com/Jxck-S/airline-logos
-https://github.com/JeanExtreme002/FlightRadarAPI
+* https://github.com/Jxck-S/airline-logos
+* https://github.com/JeanExtreme002/FlightRadarAPI
