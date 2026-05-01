@@ -18,16 +18,18 @@ app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 CORS(app)
 fr_api = FlightRadar24API()
 
-# --- CONFIGURATION ---
-# The URL of your local Raspberry Pi ADS-B receiver
-ADSB_URL = config.ADSB_URL
-
 # Coordinates
 HOME_LAT = config.HOME_LAT
 HOME_LON = config.HOME_LON
 
 # Minimum altitude (feet) for a plane to be considered
 MIN_ALTITUDE = getattr(config, 'MIN_ALTITUDE', 200)
+
+# Range in NM to consider when looking for planes from ADSB.lol
+RANGE = getattr(config, 'RANGE', 50)
+
+# --- API URLs ---
+ADSB_URL = config.ADSB_URL.format(lat=HOME_LAT, lon=HOME_LON, range=RANGE)
 
 # --- GLOBAL CACHE ---
 # Stores the 'Heavy' metadata so we don't spam FlightRadar24
@@ -80,13 +82,12 @@ def get_closest_plane():
     global last_enriched_data
     
     try:
-        # 1. Pull live telemetry from the Raspberry Pi Radio
+        # 1. Pull closest planes from ADS-B
         response = requests.get(ADSB_URL, timeout=2)
         data = response.json()
-        aircraft_list = data.get('aircraft', [])
+        aircraft_list = data.get('ac') or data.get('aircraft') or []
 
         if not aircraft_list:
-            # print("No aircraft data received from ADS-B receiver.")
             return jsonify({"error": "No aircraft in range"}), 404
 
         # 2. Identify the closest plane with an active signal
