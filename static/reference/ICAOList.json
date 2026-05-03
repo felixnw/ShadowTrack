@@ -54,7 +54,7 @@
       "Class":"LandPlane","Number+Engine Type":"1/Piston","MANUFACTURER, Model":"AEROPRACT, A-19"
    },
    "A19N": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-319NEO"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A319NEO"
    },
    "A20": {
       "Class":"LandPlane","Number+Engine Type":"2/Piston","MANUFACTURER, Model":"DOUGLAS, A-20 Havoc"
@@ -66,7 +66,7 @@
       "Class":"LandPlane","Number+Engine Type":"1/Jet","MANUFACTURER, Model":"SCHLEICHER, ASW-20J"
    },
    "A20N": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-320NEO"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A320NEO"
    },
    "A21": {
       "Class":"LandPlane","Number+Engine Type":"1/Piston","MANUFACTURER, Model":"AEROPRACT, A-21 Solo"
@@ -75,7 +75,7 @@
       "Class":"LandPlane","Number+Engine Type":"1/Piston","MANUFACTURER, Model":"AQUILA, A-210"
    },
    "A21N": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-321NEO"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A321NEO"
    },
    "A22": {
       "Class":"LandPlane","Number+Engine Type":"1/Piston","MANUFACTURER, Model":"SADLER, A-22 Piranha"
@@ -114,28 +114,28 @@
       "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"DOUGLAS, A-3 Skywarrior"
    },
    "A306": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-300B4-600"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A300B4-600"
    },
    "A30B": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-300B4-200"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A300B4-200"
    },
    "A31": {
       "Class":"LandPlane","Number+Engine Type":"1/Piston","MANUFACTURER, Model":"AVANTAGE, A-31 Spectrum"
    },
    "A310": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-310"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A310"
    },
    "A318": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-318"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A318"
    },
    "A319": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-319"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A319"
    },
    "A320": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-320"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A320"
    },
    "A321": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-321"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A321"
    },
    "A32E": {
       "Class":"LandPlane","Number+Engine Type":"1/Electric","MANUFACTURER, Model":"SCHLEICHER, ASG-32EL"
@@ -147,19 +147,19 @@
       "Class":"LandPlane","Number+Engine Type":"1/Piston","MANUFACTURER, Model":"AEROPRACT, A-33"
    },
    "A332": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-330-200"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A330-200"
    },
    "A333": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-330-300"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A330-300"
    },
    "A337": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-330-700 Beluga XL"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A330-700 Beluga XL"
    },
    "A338": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-330-800"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A330-800"
    },
    "A339": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-330-900"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A330-900"
    },
    "A33E": {
       "Class":"LandPlane","Number+Engine Type":"1/Electric","MANUFACTURER, Model":"SCHLEICHER, AS-33Me"
@@ -168,16 +168,16 @@
       "Class":"LandPlane","Number+Engine Type":"1/Piston","MANUFACTURER, Model":"SCHLEICHER, AS-33Es"
    },
    "A342": {
-      "Class":"LandPlane","Number+Engine Type":"4/Jet","MANUFACTURER, Model":"AIRBUS, A-340-200"
+      "Class":"LandPlane","Number+Engine Type":"4/Jet","MANUFACTURER, Model":"AIRBUS, A340-200"
    },
    "A343": {
-      "Class":"LandPlane","Number+Engine Type":"4/Jet","MANUFACTURER, Model":"AIRBUS, A-340-300"
+      "Class":"LandPlane","Number+Engine Type":"4/Jet","MANUFACTURER, Model":"AIRBUS, A340-300"
    },
    "A345": {
-      "Class":"LandPlane","Number+Engine Type":"4/Jet","MANUFACTURER, Model":"AIRBUS, A-340-500"
+      "Class":"LandPlane","Number+Engine Type":"4/Jet","MANUFACTURER, Model":"AIRBUS, A340-500"
    },
    "A346": {
-      "Class":"LandPlane","Number+Engine Type":"4/Jet","MANUFACTURER, Model":"AIRBUS, A-340-600"
+      "Class":"LandPlane","Number+Engine Type":"4/Jet","MANUFACTURER, Model":"AIRBUS, A340-600"
    },
    "A34E": {
       "Class":"LandPlane","Number+Engine Type":"1/Electric","MANUFACTURER, Model":"SCHLEICHER, AS-34Me"
@@ -186,25 +186,25 @@
       "Class":"LandPlane","Number+Engine Type":"1/Piston","MANUFACTURER, Model":"AVANTAGE, A-35 Scanner"
    },
    "A359": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-350-900 XWB"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A350-900 XWB"
    },
    "A35K": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-350-1000 XWB"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A350-1000 XWB"
    },
    "A37": {
       "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"CESSNA, A-37 Dragonfly"
    },
    "A388": {
-      "Class":"LandPlane","Number+Engine Type":"4/Jet","MANUFACTURER, Model":"AIRBUS, A-380-800"
+      "Class":"LandPlane","Number+Engine Type":"4/Jet","MANUFACTURER, Model":"AIRBUS, A380-800"
    },
    "A3ST": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-300ST Beluga"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A300ST Beluga"
    },
    "A4": {
       "Class":"LandPlane","Number+Engine Type":"1/Jet","MANUFACTURER, Model":"MCDONNELL DOUGLAS, A-4 Skyhawk"
    },
    "A400": {
-      "Class":"LandPlane","Number+Engine Type":"4/Turboprop/Turboshaft","MANUFACTURER, Model":"AIRBUS, A-400M Atlas"
+      "Class":"LandPlane","Number+Engine Type":"4/Turboprop/Turboshaft","MANUFACTURER, Model":"AIRBUS, A400M Atlas"
    },
    "A411": {
       "Class":"LandPlane","Number+Engine Type":"2/Piston","MANUFACTURER, Model":"OSKBES-MAI, MAI-411"
@@ -1077,10 +1077,10 @@
       "Class":"LandPlane","Number+Engine Type":"1/Piston","MANUFACTURER, Model":"GRUMMAN, F8F Bearcat"
    },
    "BCS1": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-220-100"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A220-100"
    },
    "BCS3": {
-      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A-220-300"
+      "Class":"LandPlane","Number+Engine Type":"2/Jet","MANUFACTURER, Model":"AIRBUS, A220-300"
    },
    "BD10": {
       "Class":"LandPlane","Number+Engine Type":"1/Jet","MANUFACTURER, Model":"BEDE, BD-10"

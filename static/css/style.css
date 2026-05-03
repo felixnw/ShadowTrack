@@ -96,7 +96,7 @@ body {
 .regional-name {
     font-size: clamp(0.8rem, 2.5vw, 1.4rem);
     font-style: italic;
-    color: var(--slate-dim);
+    color: var(--slate-bright);
     margin-top: 2px;
 }
 
