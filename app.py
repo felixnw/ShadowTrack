@@ -82,30 +82,15 @@ with open(_regional_path, 'r') as _f:
 
 
 def lookup_airline(icao_code):
-    """Resolve an ICAO airline code, preserving acronyms and stripping extra data."""
+    """Resolve an ICAO airline code to its company name."""
     if not icao_code:
         return None
-    
     entry = AIRLINES.get(icao_code.upper())
     if not entry:
         return None
-        
     company = entry.get('Company', '')
-    if not company:
-        return None
-
-    # 1. Strip anything after a comma and remove whitespace
-    base_name = company.split(',', 1)[0].strip()
-    
-    # 2. Process each word individually
-    words = base_name.split()
-    processed_words = [
-        word.upper() if len(word) <= 3 else word.title() 
-        for word in words
-    ]
-    
-    # 3. Rejoin into a single string
-    return ' '.join(processed_words)
+    # Strip anything after a comma
+    return ' '.join([word.upper() if len(word) <= 3 else word.title() for word in company.split()]) if company else None
 
 # --- GLOBAL CACHE ---
 # Stores the 'Heavy' metadata so we don't spam FlightRadar24
