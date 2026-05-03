@@ -82,15 +82,32 @@ with open(_regional_path, 'r') as _f:
 
 
 def lookup_airline(icao_code):
-    """Resolve an ICAO airline code to its company name."""
+    """Resolve an ICAO airline code to its company name with acronym protection."""
     if not icao_code:
         return None
+        
     entry = AIRLINES.get(icao_code.upper())
     if not entry:
         return None
+        
     company = entry.get('Company', '')
+    if not company:
+        return None
+
     # Strip anything after a comma
-    return company.split(',', 1)[0].strip().title() if company else None
+    base_name = company.split(',', 1)[0].strip()
+    
+    # Define protected acronyms
+    protected = {'KLM', 'PSA'}
+    
+    # Process each word: Title case unless it's a protected acronym
+    words = base_name.split()
+    formatted_words = [
+        word.upper() if word.upper() in protected else word.title() 
+        for word in words
+    ]
+    
+    return " ".join(formatted_words)
 
 # --- GLOBAL CACHE ---
 # Stores the 'Heavy' metadata so we don't spam FlightRadar24
