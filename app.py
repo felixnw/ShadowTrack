@@ -90,7 +90,7 @@ def lookup_airline(icao_code):
         return None
     company = entry.get('Company', '')
     # Strip anything after a comma
-    return company.split(',', 1)[0].strip().title() if company else None
+    return ' '.join([word.upper() if len(word) <= 3 else word.title() for word in company.split()]) if company else None
 
 # --- GLOBAL CACHE ---
 # Stores the 'Heavy' metadata so we don't spam FlightRadar24

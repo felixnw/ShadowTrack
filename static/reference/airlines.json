@@ -6825,7 +6825,7 @@
      "Company":"EVOLEM AVIATION","Country":"FRANCE","Telephony":"EVOLEM"
   },
   "OCN": {
-     "Company":"EW DISCOVER GMBH","Country":"GERMANY","Telephony":"OCEAN"
+     "Company":"DISCOVER AIRLINES","Country":"GERMANY","Telephony":"OCEAN"
   },
   "EWR": {
      "Company":"EWA AIR","Country":"FRANCE","Telephony":"MAYOTTE AIR"
@@ -11436,7 +11436,7 @@
      "Company":"MJET LIMITED","Country":"THAILAND","Telephony":""
   },
   "SCX": {
-     "Company":"MN AIRLINES, LLC, D/B/A SUN COUNTRY AIRLINES (MENDOTA HEIGHTS, MN)","Country":"UNITED STATES","Telephony":"SUN COUNTRY"
+     "Company":"SUN COUNTRY AIRLINES","Country":"UNITED STATES","Telephony":"SUN COUNTRY"
   },
   "MNB": {
      "Company":"MNG HAVAYOLLARI VE TASIMACILIK A.S.","Country":"TURKEY","Telephony":"BLACK SEA"
@@ -15567,7 +15567,7 @@
      "Company":"SOUTHWEST AIRCRAFT CHARTER","Country":"UNITED STATES","Telephony":"CACTUS"
   },
   "SWA": {
-     "Company":"SOUTHWEST AIRLINES CO. (SAN ANTONIO, TX)","Country":"UNITED STATES","Telephony":"SOUTHWEST"
+     "Company":"SOUTHWEST AIRLINES","Country":"UNITED STATES","Telephony":"SOUTHWEST"
   },
   "STW": {
      "Company":"SOUTHWIND AIRLINES","Country":"TURKEY","Telephony":"MOON STAR"
