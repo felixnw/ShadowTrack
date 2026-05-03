@@ -127,9 +127,31 @@ def get_altitude(ac):
     return alt or 0
 
 
+import math
+
 def calculate_distance(lat, lon):
-    """Finds the straight-line distance to a plane."""
-    return math.sqrt((lat - HOME_LAT)**2 + (lon - HOME_LON)**2)
+    """
+    Finds the great-circle distance to a plane using the Haversine formula.
+    Returns distance in kilometers.
+    """
+    # Earth's radius in kilometers (use 3958.8 for miles)
+    R = 6371.0
+
+    # Convert decimal degrees to radians
+    phi1 = math.radians(HOME_LAT)
+    phi2 = math.radians(lat)
+    
+    delta_phi = math.radians(lat - HOME_LAT)
+    delta_lambda = math.radians(lon - HOME_LON)
+
+    # Haversine calculation
+    a = (math.sin(delta_phi / 2)**2 +
+         math.cos(phi1) * math.cos(phi2) *
+         math.sin(delta_lambda / 2)**2)
+    
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    return R * c
 
 
 def filter_valid_planes(aircraft_list, min_altitude):
