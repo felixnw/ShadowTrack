@@ -20,3 +20,9 @@ MIN_ALTITUDE = 200
 
 # Range in NM to consider when looking for planes. This is only relevant when using adsb.lol.
 RANGE = 50
+
+# Elastic SWIM API URL
+SWIM_API_URL = "https://ELASTICSEARCH_ENDPOINT:443"
+
+# Elastic SWIM API Key
+SWIM_API_KEY = "APIKEY"
