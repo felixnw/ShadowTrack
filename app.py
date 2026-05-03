@@ -1,6 +1,8 @@
 import os
+import json
 import math
 import datetime
+from zoneinfo import ZoneInfo
 import requests
 from flask import Flask, render_template, jsonify
 from flask_cors import CORS
@@ -30,6 +32,65 @@ RANGE = getattr(config, 'RANGE', 50)
 
 # --- API URLs ---
 ADSB_URL = config.ADSB_URL.format(lat=HOME_LAT, lon=HOME_LON, range=RANGE)
+SWIM_API_URL = config.SWIM_API_URL if hasattr(config, 'SWIM_API_URL') else None
+
+# ---API Keys ---
+SWIM_API_KEY = config.SWIM_API_KEY if hasattr(config, 'SWIM_API_KEY') else None
+
+# --- AIRPORT LOOKUP ---
+_airports_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'reference', 'airports.json')
+with open(_airports_path, 'r') as _f:
+    AIRPORTS = json.load(_f)
+
+# Build reverse index: IATA code -> airport entry
+AIRPORTS_BY_IATA = {v['iata']: v for v in AIRPORTS.values() if v.get('iata')}
+
+
+def lookup_airport(code):
+    """Resolve an airport code (3-char IATA or 4-char ICAO) to its entry."""
+    if not code:
+        return {}
+    if len(code) == 4:
+        return AIRPORTS.get(code, {})
+    if len(code) == 3:
+        return AIRPORTS_BY_IATA.get(code, {})
+    return {}
+
+# --- AIRCRAFT TYPE LOOKUP ---
+_icao_list_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'reference', 'ICAOList.json')
+AIRCRAFT_TYPES = {}
+with open(_icao_list_path, 'r') as _f:
+    _icao_data = json.load(_f)
+    for code, entry in _icao_data.items():
+        raw = entry.get('MANUFACTURER, Model', '')
+        parts = [p.strip() for p in raw.split(',', 1)]
+        if len(parts) > 1:
+            name = f"{parts[0].title()} {parts[1]}"
+        else:
+            name = raw.title()
+        AIRCRAFT_TYPES[code.upper()] = name
+
+# --- AIRLINE LOOKUP ---
+_airlines_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'reference', 'airlines.json')
+with open(_airlines_path, 'r') as _f:
+    AIRLINES = json.load(_f)
+
+# --- REGIONAL MAPPING ---
+_regional_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'reference', 'regional.json')
+with open(_regional_path, 'r') as _f:
+    REGIONALS = json.load(_f)
+
+
+def lookup_airline(icao_code):
+    """Resolve an ICAO airline code to its company name."""
+    if not icao_code:
+        return None
+    entry = AIRLINES.get(icao_code.upper())
+    if not entry:
+        return None
+    company = entry.get('Company', '')
+    # Strip anything after a comma
+    return company.split(',', 1)[0].strip().title() if company else None
 
 # --- GLOBAL CACHE ---
 # Stores the 'Heavy' metadata so we don't spam FlightRadar24
@@ -40,6 +101,7 @@ last_enriched_data = {
 
 # --- HELPER FUNCTIONS ---
 
+
 def get_altitude(ac):
     """Returns numeric altitude in feet, or 0 for 'ground' or missing values."""
     alt = ac.get('alt_baro', 0)
@@ -47,9 +109,11 @@ def get_altitude(ac):
         return 0
     return alt or 0
 
+
 def calculate_distance(lat, lon):
     """Finds the straight-line distance to a plane."""
     return math.sqrt((lat - HOME_LAT)**2 + (lon - HOME_LON)**2)
+
 
 def filter_valid_planes(aircraft_list, min_altitude):
     """Filters aircraft to those with required fields, fresh signal, and minimum altitude."""
@@ -62,6 +126,7 @@ def filter_valid_planes(aircraft_list, min_altitude):
             valid.append(ac)
     return valid
 
+
 def format_time(ts):
     """Converts API Unix timestamps to HH:MM UTC."""
     if ts:
@@ -73,14 +138,16 @@ def format_time(ts):
 
 # --- ROUTES ---
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
 @app.route('/get-closest-plane')
 def get_closest_plane():
     global last_enriched_data
-    
+
     try:
         # 1. Pull closest planes from ADS-B
         response = requests.get(ADSB_URL, timeout=2)
@@ -103,7 +170,7 @@ def get_closest_plane():
 
 # 3. SMART ENRICHMENT & CACHING
         details = {}
-        
+
         if last_enriched_data["hex"] == current_hex and last_enriched_data["details"] is not None:
             details = last_enriched_data["details"]
             print(f"CACHE HIT: Reusing data for {callsign}")
@@ -111,32 +178,50 @@ def get_closest_plane():
             print(f"CACHE MISS: Searching bounds for {callsign}...")
             details = {}
             try:
-                # 1. Create a tiny search box around the plane's current Lat/Lon
-                # Format: "North, South, West, East"
-                buffer = 0.1 
-                p_lat, p_lon = closest_ac['lat'], closest_ac['lon']
-                bounds = f"{p_lat+buffer},{p_lat-buffer},{p_lon-buffer},{p_lon+buffer}"
-                
-                # 2. Get all flights in that tiny specific area
-                flights_in_area = fr_api.get_flights(bounds=bounds)
-                
-                # 3. Find our specific flight in that tiny list
-                match = next((f for f in flights_in_area if f.icao_24bit.strip().lower() == current_hex), None)
-                
-                if match:
-                    fetched_details = fr_api.get_flight_details(match)
-                    # We found a match! Even if it's a private jet with no airline, 
-                    # we save whatever details we got.
-                    details = fetched_details if fetched_details else {}
-                    print(f"CACHE SAVED: Found {callsign} via Spatial Match.")
+
+                response = requests.get(f"{SWIM_API_URL}/swim-combined-flights/_search?size=1",
+                                        headers={
+                                            "Authorization": f"ApiKey {SWIM_API_KEY}", "Content-Type": "application/json"},
+                                        json={
+                    "sort": [
+                        {
+                            "last_update": {
+                                "order": "desc"
+                            }
+                        }
+                    ],
+                    "query": {
+                        "bool": {
+                            "filter": [
+                                {
+                                    "term": {
+                                        "flight_id": callsign
+                                    }
+                                },
+                                {
+                                    "term": {
+                                        "latest_status": "ACTIVE"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                })
+                response.raise_for_status()
+                if response.status_code == 200:
+                    hits = response.json().get('hits', {}).get('hits', [])
+                    if hits:
+                        details = hits[0].get('_source', {})
+                        print(f"CACHE SAVED: Found {callsign} via SWIM API.")
                 else:
                     # We didn't find it on FR24 at all (likely Military/Blocked)
                     # We save an empty dict so the next refresh triggers a CACHE HIT
                     details = {}
-                    print(f"CACHE SAVED: {callsign} not found on FR24 (Military/Blocked).")
+                    print(
+                        f"CACHE SAVED: {callsign} not found on FR24 (Military/Blocked).")
 
                 # --- THE CRITICAL FIX ---
-                # These lines MUST stay outside the 'if match' to ensure 
+                # These lines MUST stay outside the 'if match' to ensure
                 # that every hex gets cached exactly once.
                 last_enriched_data["hex"] = current_hex
                 last_enriched_data["details"] = details
@@ -144,81 +229,70 @@ def get_closest_plane():
                 print(f"Spatial Lookup Error: {e}")
 
       # 4. CONSTRUCT THE FINAL PAYLOAD
-        # Refined check: Ensure details is a dict AND not None
-        is_valid = isinstance(details, dict) and details.get('airline') is not None
-        
-        # Safe helper for nested dictionary lookups (Prevents 'NoneType' errors)
-        def safe_get(obj, *keys):
-            for key in keys:
-                try:
-                    obj = obj.get(key)
-                except (AttributeError, TypeError):
-                    return None
-            return obj
+        is_valid = isinstance(details, dict) and bool(details)
 
-        time_data = details.get('time', {}) if is_valid else {}
-        
-        # --- HELPERS ---
-        def get_local_time(utc_ts, airport_key):
-            if not utc_ts or not is_valid: return "--:--"
+        def get_local_time(timestamp_value, airport_code):
+            if not timestamp_value:
+                return "--:--"
             try:
-                # Use safe_get to navigate the nested timezone offset
-                offset = safe_get(details, 'airport', airport_key, 'timezone', 'offset') or 0
-                local_dt = datetime.datetime.fromtimestamp(utc_ts + offset, datetime.timezone.utc)
-                return local_dt.strftime('%I:%M %p').lstrip('0') # lstrip removes leading zero
+                dt = datetime.datetime.fromisoformat(timestamp_value.replace('Z', '+00:00'))
+                tz_name = lookup_airport(airport_code).get('tz')
+                if tz_name:
+                    dt = dt.astimezone(ZoneInfo(tz_name))
+                return dt.strftime('%I:%M %p').lstrip('0')
             except Exception:
                 return "--:--"
 
-        def get_airport_code(airport_key):
-            if not is_valid: return "---"
-            # Try IATA then ICAO
-            iata = safe_get(details, 'airport', airport_key, 'code', 'iata')
-            icao = safe_get(details, 'airport', airport_key, 'code', 'icao')
-            return iata or icao or "---"
-
-        # --- DATA EXTRACTION ---
-        dep_ts = safe_get(time_data, 'real', 'departure') or safe_get(time_data, 'scheduled', 'departure')
-        arr_ts = safe_get(time_data, 'estimated', 'arrival') or safe_get(time_data, 'scheduled', 'arrival')
-
-        # --- DELAY LOGIC ---
         def get_delay_status():
-            if not is_valid: return "Scheduled"
-            
-            sched_arr = safe_get(time_data, 'scheduled', 'arrival')
-            est_arr = safe_get(time_data, 'estimated', 'arrival')
-            
-            if not sched_arr or not est_arr: return "Scheduled"
-            
-            # Difference in minutes
-            delay_mins = (est_arr - sched_arr) // 60
-            
-            if delay_mins > 30: return "delayed-major" # Red (30+ mins)
-            if delay_mins > 10: return "delayed-minor"    # Yellow (10-30 mins)
-            return "ontime"                               # Green
+            if not is_valid:
+                return "Scheduled"
+
+            delay_mins = details.get('arrival_delay_minutes')
+            if delay_mins is None:
+                return "Scheduled"
+            if delay_mins > 30:
+                return "delayed-major"
+            if delay_mins > 10:
+                return "delayed-minor"
+            return "ontime"
+
+        major_code = details.get('major')
+        if major_code and (major_code.upper() == (details.get('operator') or '').upper() or major_code.upper() == 'XXX'):
+            major_code = None
+        if major_code:
+            operator_name = REGIONALS.get(major_code.upper()) or lookup_airline(major_code) or "Private/Military"
+            operator_icao = major_code.upper()
+            regional_name = lookup_airline(details.get('operator')) or details.get('operator') or None
+        else:
+            operator_name = lookup_airline(details.get('operator')) or "Private/Military"
+            operator_icao = details.get('operator') or "DEFAULT"
+            regional_name = None
 
         payload = {
-            "flight": callsign,
-            "tail": safe_get(details, 'aircraft', 'registration') or current_hex.upper(),
+            "flight": details.get('flight_id') or callsign,
+            "tail": details.get('registration') or current_hex.upper(),
             "alt": closest_ac.get('alt_baro', 0),
             "speed": closest_ac.get('gs', 0),
-            "operator": safe_get(details, 'airline', 'name') or "Private/Military",
-            "operator_icao": safe_get(details, 'airline', 'code', 'icao') or "DEFAULT",
-            "origin_icao": get_airport_code('origin'),
-            "origin_city": safe_get(details, 'airport', 'origin', 'name') or "Unknown",
-            "dest_icao": get_airport_code('destination'),
-            "dest_city": safe_get(details, 'airport', 'destination', 'name') or "Unknown",
-            "aircraft_model": safe_get(details, 'aircraft', 'model', 'text') or "Unknown Aircraft",
-            "dep_time": get_local_time(dep_ts, 'origin'),
-            "arr_time": get_local_time(arr_ts, 'destination'),
+            "operator": operator_name,
+            "operator_icao": operator_icao,
+            "regional": regional_name,
+            "origin_icao": lookup_airport(details.get('dep_airport')).get('iata') or details.get('dep_airport') or "---",
+            "origin_city": lookup_airport(details.get('dep_airport')).get('name') or "Unknown",
+            "dest_icao": lookup_airport(details.get('arr_airport')).get('iata') or details.get('arr_airport') or "---",
+            "dest_city": lookup_airport(details.get('arr_airport')).get('name') or "Unknown",
+            "aircraft_model": AIRCRAFT_TYPES.get((details.get('aircraft_model') or '').upper()) or details.get('aircraft_model') or "Unknown Aircraft",
+            "dep_time": get_local_time(details.get('latest_etd') or details.get('original_etd'), details.get('dep_airport')),
+            "arr_time": get_local_time(details.get('latest_eta') or details.get('original_eta'), details.get('arr_airport')),
             "delay_status": get_delay_status(),
-            "status_text": safe_get(details, 'status', 'text') or "Scheduled"
+            "status_text": details.get('latest_status') or "Scheduled"
         }
 
         return jsonify(payload)
-    
+
     except Exception as e:
         print(f"CRITICAL BACKEND ERROR: {e}")
         return jsonify({"error": "Internal Error"}), 500
+
 
 if __name__ == '__main__':
     # host='0.0.0.0' makes it accessible to your tablet via the Pi's IP

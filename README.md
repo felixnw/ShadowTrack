@@ -19,3 +19,5 @@
 #### Makes use of:
 * https://github.com/Jxck-S/airline-logos
 * https://github.com/JeanExtreme002/FlightRadarAPI
+* https://github.com/mwgg/Airports
+* https://github.com/rikgale/ICAOList

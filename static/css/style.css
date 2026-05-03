@@ -93,6 +93,13 @@ body {
     color: var(--slate-bright);
 }
 
+.regional-name {
+    font-size: clamp(0.8rem, 2.5vw, 1.4rem);
+    font-style: italic;
+    color: var(--slate-dim);
+    margin-top: 2px;
+}
+
 .logo-box {
     width: 180px;
     height: 180px;

@@ -1,0 +1,8 @@
+{
+    "DAL" : "Delta Connection",
+    "AAL" : "American Eagle",
+    "UAL" : "United Express",
+    "ACA" : "Air Canada Express",
+    "WJA" : "WestJet Encore",
+    "AMX" : "Aeromexico Connect"
+}

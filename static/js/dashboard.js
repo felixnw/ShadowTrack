@@ -33,6 +33,18 @@ async function updateDashboard() {
         document.getElementById('flight-id').innerText = data.flight || 'N/A';
         document.getElementById('operator').innerText = data.operator || 'Unknown Operator';
         
+        // Regional operator line
+        const regionalEl = document.getElementById('regional-operator');
+        if (regionalEl) {
+            if (data.regional) {
+                regionalEl.innerText = `Operated by ${data.regional}`;
+                regionalEl.style.display = '';
+            } else {
+                regionalEl.innerText = '';
+                regionalEl.style.display = 'none';
+            }
+        }
+        
         // 3. Update Logo (using Airline ICAO)
         const logoImg = document.getElementById('airline-logo');
         if (data.operator_icao && data.operator_icao !== "DEFAULT") {
