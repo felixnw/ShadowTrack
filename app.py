@@ -218,7 +218,7 @@ def get_closest_plane():
             details = {}
             try:
 
-                response = requests.get(f"{SWIM_API_URL}/swim-combined-flights/_search?size=1",
+                response = requests.get(f"{SWIM_API_URL}/swim-combined-flights/_search?size=10",
                                         headers={
                                             "Authorization": f"ApiKey {SWIM_API_KEY}", "Content-Type": "application/json"},
                                         json={
@@ -238,8 +238,8 @@ def get_closest_plane():
                                     }
                                 },
                                 {
-                                    "term": {
-                                        "latest_status": "ACTIVE"
+                                    "terms": {
+                                        "latest_status": ["ACTIVE", "PLANNED", "PROPOSED"]
                                     }
                                 }
                             ]
@@ -250,8 +250,22 @@ def get_closest_plane():
                 if response.status_code == 200:
                     hits = response.json().get('hits', {}).get('hits', [])
                     if hits:
-                        details = hits[0].get('_source', {})
-                        print(f"CACHE SAVED: Found {callsign} via SWIM API.")
+                        # Prefer ACTIVE; fall back to most-recently-updated PLANNED/PROPOSED
+                        active_hits = [h for h in hits if h.get('_source', {}).get('latest_status') == 'ACTIVE']
+                        best_hit = active_hits[0] if active_hits else hits[0]
+                        details = best_hit.get('_source', {})
+                        # Backfill missing fields from other hits on the same leg only
+                        same_leg_hits = [
+                            h for h in hits
+                            if h is not best_hit
+                            and h.get('_source', {}).get('dep_airport') == details.get('dep_airport')
+                            and h.get('_source', {}).get('arr_airport') == details.get('arr_airport')
+                        ]
+                        for h in same_leg_hits:
+                            for key, val in h.get('_source', {}).items():
+                                if val is not None and not details.get(key):
+                                    details[key] = val
+                        print(f"CACHE SAVED: Found {callsign} via SWIM API (status: {details.get('latest_status')}).")
                 else:
                     # We didn't find it on FR24 at all (likely Military/Blocked)
                     # We save an empty dict so the next refresh triggers a CACHE HIT
@@ -323,8 +337,8 @@ def get_closest_plane():
             "dest_icao": lookup_airport(details.get('arr_airport')).get('iata') or details.get('arr_airport') or "---",
             "dest_city": lookup_airport(details.get('arr_airport')).get('name') or "Unknown",
             "aircraft_model" : AIRCRAFT_TYPES.get(model_val.upper()) or model_val or "Unknown Aircraft",
-            "dep_time": get_local_time(details.get('latest_etd') or details.get('original_etd'), details.get('dep_airport')),
-            "arr_time": get_local_time(details.get('latest_eta') or details.get('original_eta'), details.get('arr_airport')),
+            "dep_time": get_local_time(details.get('latest_etd') or details.get('original_etd') or details.get('dep_time_estimated') or details.get('dep_time_actual'), details.get('dep_airport')),
+            "arr_time": get_local_time(details.get('latest_eta') or details.get('original_eta') or details.get('arr_time_estimated'), details.get('arr_airport')),
             "delay_status": get_delay_status(),
             "status_text": details.get('latest_status') or "Scheduled"
         }
