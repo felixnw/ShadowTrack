@@ -126,9 +126,6 @@ def get_altitude(ac):
         return 0
     return alt or 0
 
-
-import math
-
 def calculate_distance(lat, lon):
     """
     Finds the great-circle distance to a plane using the Haversine formula.
@@ -240,6 +237,17 @@ def get_closest_plane():
                                 {
                                     "terms": {
                                         "latest_status": ["ACTIVE", "PLANNED", "PROPOSED"]
+                                    }
+                                },
+                                {
+                                    "bool": {
+                                        "must_not": {
+                                            "range": {
+                                                "latest_etd": {
+                                                    "gte": "now+6h"
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             ]
