@@ -62,7 +62,7 @@ with open(_icao_list_path, 'r') as _f:
 def lookup_aircraft_name(model_val):
     full_entry = types_data.get(model_val)
     if not full_entry:
-        return "Unknown"
+        return None
 
     full_string = full_entry[0]
     words = full_string.split(" ")
@@ -88,6 +88,11 @@ with open(_airlines_path, 'r') as _f:
 _regional_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'reference', 'regional.json')
 with open(_regional_path, 'r') as _f:
     REGIONALS = json.load(_f)
+
+# --- AIRCRAFT LOOKUP ---
+_aircrafts_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'reference', 'indexedDB', 'aircrafts.json')
+with open(_aircrafts_path, 'r') as f:
+    aircraft_lookup = json.load(f)
 
 
 def lookup_airline(icao_code):
@@ -326,7 +331,7 @@ def get_closest_plane():
 
         payload = {
             "flight": details.get('flight_id') or callsign,
-            "tail": details.get('registration') or current_hex.upper(),
+            "tail" : (details.get('registration') or aircraft_lookup.get(current_hex.upper(), [""])[0] or current_hex.upper()),
             "alt": closest_ac.get('alt_baro', 0),
             "speed": closest_ac.get('gs', 0),
             "operator": operator_name,
@@ -336,7 +341,7 @@ def get_closest_plane():
             "origin_city": lookup_airport(details.get('dep_airport')).get('name') or "Unknown",
             "dest_icao": lookup_airport(details.get('arr_airport')).get('iata') or details.get('arr_airport') or "---",
             "dest_city": lookup_airport(details.get('arr_airport')).get('name') or "Unknown",
-            "aircraft_model" : lookup_aircraft_name(model_val.upper()) or model_val or "Unknown Aircraft",
+            "aircraft_model" : lookup_aircraft_name(model_val.upper()) or lookup_aircraft_name(aircraft_lookup.get(current_hex.upper(), [""])[1]) or model_val or "Unknown Aircraft",
             "dep_time": get_local_time(details.get('latest_etd') or details.get('original_etd') or details.get('dep_time_estimated') or details.get('dep_time_actual'), details.get('dep_airport')),
             "arr_time": get_local_time(details.get('latest_eta') or details.get('original_eta') or details.get('arr_time_estimated'), details.get('arr_airport')),
             "delay_status": get_delay_status(),
