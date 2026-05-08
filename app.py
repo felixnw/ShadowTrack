@@ -95,7 +95,7 @@ def lookup_airline(icao_code):
     if not icao_code:
         return None
         
-    entry = AIRLINES.get(icao_code.upper()[0])
+    entry = AIRLINES.get(icao_code.upper())[0] if icao_code.upper() in AIRLINES else None
     if not entry:
         return None
     
