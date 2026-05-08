@@ -6,7 +6,6 @@ from zoneinfo import ZoneInfo
 import requests
 from flask import Flask, render_template, jsonify
 from flask_cors import CORS
-from FlightRadar24 import FlightRadar24API
 
 # --- IMPORT YOUR PRIVATE CONFIG ---
 import config
@@ -18,7 +17,6 @@ static_dir = os.path.abspath('static')
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 CORS(app)
-fr_api = FlightRadar24API()
 
 # Coordinates
 HOME_LAT = config.HOME_LAT
@@ -104,7 +102,7 @@ def lookup_airline(icao_code):
     return entry
 
 # --- GLOBAL CACHE ---
-# Stores the 'Heavy' metadata so we don't spam FlightRadar24
+# Stores the 'Heavy' metadata from the last successful enrichment to avoid redundant API calls for the same plane on subsequent refreshes.
 last_enriched_data = {
     "hex": None,
     "details": None
