@@ -321,6 +321,8 @@ def get_closest_plane():
             operator_name = REGIONALS.get(major_code.upper()) or lookup_airline(major_code) or "Private/Military"
             operator_icao = major_code.upper()
             regional_name = lookup_airline(details.get('operator')) or details.get('operator') or None
+            if regional_name and regional_name.upper() == "XXX":
+                regional_name = None
         else:
             operator_name = lookup_airline(details.get('operator')) or "Private/Military"
             operator_icao = details.get('operator') or "DEFAULT"
