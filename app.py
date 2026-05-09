@@ -341,7 +341,7 @@ def get_closest_plane():
             "origin_city": lookup_airport(details.get('dep_airport')).get('name') or "Unknown",
             "dest_icao": lookup_airport(details.get('arr_airport')).get('iata') or details.get('arr_airport') or "---",
             "dest_city": lookup_airport(details.get('arr_airport')).get('name') or "Unknown",
-            "aircraft_model" : lookup_aircraft_name(model_val.upper()) or lookup_aircraft_name(aircraft_lookup.get(current_hex.upper(), [""])[1]) or model_val or "Unknown Aircraft",
+            "aircraft_model" : lookup_aircraft_name(model_val.upper()) or lookup_aircraft_name(aircraft_lookup.get(current_hex.upper(), ["", ""])[1]) or model_val or "Unknown Aircraft",
             "dep_time": get_local_time(details.get('latest_etd') or details.get('original_etd') or details.get('dep_time_estimated') or details.get('dep_time_actual'), details.get('dep_airport')),
             "arr_time": get_local_time(details.get('latest_eta') or details.get('original_eta') or details.get('arr_time_estimated'), details.get('arr_airport')),
             "delay_status": get_delay_status(),
