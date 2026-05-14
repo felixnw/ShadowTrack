@@ -6,7 +6,6 @@ from zoneinfo import ZoneInfo
 import requests
 from flask import Flask, render_template, jsonify
 from flask_cors import CORS
-from FlightRadar24 import FlightRadar24API
 
 # --- IMPORT YOUR PRIVATE CONFIG ---
 import config
@@ -18,7 +17,6 @@ static_dir = os.path.abspath('static')
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 CORS(app)
-fr_api = FlightRadar24API()
 
 # Coordinates
 HOME_LAT = config.HOME_LAT
@@ -57,21 +55,32 @@ def lookup_airport(code):
     return {}
 
 # --- AIRCRAFT TYPE LOOKUP ---
-_icao_list_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'reference', 'ICAOList.json')
-AIRCRAFT_TYPES = {}
+_icao_list_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'reference', 'indexedDB', 'types.json')
 with open(_icao_list_path, 'r') as _f:
-    _icao_data = json.load(_f)
-    for code, entry in _icao_data.items():
-        raw = entry.get('MANUFACTURER, Model', '')
-        parts = [p.strip() for p in raw.split(',', 1)]
-        if len(parts) > 1:
-            name = f"{parts[0].title()} {parts[1]}"
+    types_data = json.load(_f)
+
+def lookup_aircraft_name(model_val):
+    full_entry = types_data.get(model_val)
+    if not full_entry:
+        return None
+
+    full_string = full_entry[0]
+    words = full_string.split(" ")
+    formatted_words = []
+
+    for word in words:
+        # Check if the word is strictly alphabetical and all uppercase
+        # We use .isupper() to catch "BOEING" but ignore "737-800" or "A-10"
+        if word.isalpha() and word.isupper():
+            formatted_words.append(word.capitalize())
         else:
-            name = raw.title()
-        AIRCRAFT_TYPES[code.upper()] = name
+            # Keep it as is (e.g., "Jetprop", "A-10", "737-800")
+            formatted_words.append(word)
+
+    return " ".join(formatted_words)
 
 # --- AIRLINE LOOKUP ---
-_airlines_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'reference', 'airlines.json')
+_airlines_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'reference', 'indexedDB', 'operators.json')
 with open(_airlines_path, 'r') as _f:
     AIRLINES = json.load(_f)
 
@@ -80,37 +89,25 @@ _regional_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stati
 with open(_regional_path, 'r') as _f:
     REGIONALS = json.load(_f)
 
+# --- AIRCRAFT LOOKUP ---
+_aircrafts_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'reference', 'indexedDB', 'aircrafts.json')
+with open(_aircrafts_path, 'r') as f:
+    aircraft_lookup = json.load(f)
+
 
 def lookup_airline(icao_code):
-    """Resolve an ICAO airline code to its company name with acronym protection."""
+    """Resolve an ICAO airline code to its company name"""
     if not icao_code:
         return None
         
-    entry = AIRLINES.get(icao_code.upper())
+    entry = AIRLINES.get(icao_code.upper())[0] if icao_code.upper() in AIRLINES else None
     if not entry:
         return None
-        
-    company = entry.get('Company', '')
-    if not company:
-        return None
-
-    # Strip anything after a comma
-    base_name = company.split(',', 1)[0].strip()
     
-    # Define protected acronyms
-    protected = {'KLM', 'PSA'}
-    
-    # Process each word: Title case unless it's a protected acronym
-    words = base_name.split()
-    formatted_words = [
-        word.upper() if word.upper() in protected else word.title() 
-        for word in words
-    ]
-    
-    return " ".join(formatted_words)
+    return entry
 
 # --- GLOBAL CACHE ---
-# Stores the 'Heavy' metadata so we don't spam FlightRadar24
+# Stores the 'Heavy' metadata from the last successful enrichment to avoid redundant API calls for the same plane on subsequent refreshes.
 last_enriched_data = {
     "hex": None,
     "details": None
@@ -324,6 +321,8 @@ def get_closest_plane():
             operator_name = REGIONALS.get(major_code.upper()) or lookup_airline(major_code) or "Private/Military"
             operator_icao = major_code.upper()
             regional_name = lookup_airline(details.get('operator')) or details.get('operator') or None
+            if regional_name and regional_name.upper() == "XXX":
+                regional_name = None
         else:
             operator_name = lookup_airline(details.get('operator')) or "Private/Military"
             operator_icao = details.get('operator') or "DEFAULT"
@@ -334,7 +333,7 @@ def get_closest_plane():
 
         payload = {
             "flight": details.get('flight_id') or callsign,
-            "tail": details.get('registration') or current_hex.upper(),
+            "tail" : (details.get('registration') or aircraft_lookup.get(current_hex.upper(), [""])[0] or current_hex.upper()),
             "alt": closest_ac.get('alt_baro', 0),
             "speed": closest_ac.get('gs', 0),
             "operator": operator_name,
@@ -344,7 +343,7 @@ def get_closest_plane():
             "origin_city": lookup_airport(details.get('dep_airport')).get('name') or "Unknown",
             "dest_icao": lookup_airport(details.get('arr_airport')).get('iata') or details.get('arr_airport') or "---",
             "dest_city": lookup_airport(details.get('arr_airport')).get('name') or "Unknown",
-            "aircraft_model" : AIRCRAFT_TYPES.get(model_val.upper()) or model_val or "Unknown Aircraft",
+            "aircraft_model" : lookup_aircraft_name(model_val.upper()) or lookup_aircraft_name(aircraft_lookup.get(current_hex.upper(), ["", ""])[1]) or model_val or "Unknown Aircraft",
             "dep_time": get_local_time(details.get('latest_etd') or details.get('original_etd') or details.get('dep_time_estimated') or details.get('dep_time_actual'), details.get('dep_airport')),
             "arr_time": get_local_time(details.get('latest_eta') or details.get('original_eta') or details.get('arr_time_estimated'), details.get('arr_airport')),
             "delay_status": get_delay_status(),
